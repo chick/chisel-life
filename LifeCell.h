@@ -10,7 +10,7 @@ class LifeCell_t : public mod_t {
   val_t __rand_val() { return ::__rand_val(&__rand_seed); }
  public:
   dat_t<1> reset;
-  dat_t<1> T15;
+  dat_t<1> T9;
   dat_t<1> LifeCell__is_alive;
   dat_t<1> LifeCell__io_is_alive;
   dat_t<4> LifeCell__io_bot_right;
@@ -21,7 +21,7 @@ class LifeCell_t : public mod_t {
   dat_t<4> LifeCell__io_top_right;
   dat_t<4> LifeCell__io_top_center;
   dat_t<4> LifeCell__io_top_left;
-  dat_t<4> T7;
+  dat_t<4> T1;
   dat_t<4> LifeCell__neighbor_sum;
   dat_t<4> LifeCell__io_mid_center;
   clk_t clk;

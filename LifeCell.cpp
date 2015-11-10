@@ -38,52 +38,52 @@ void LifeCell_t::dump ( FILE* f, int t ) {
 
 
 void LifeCell_t::clock_lo ( dat_t<1> reset ) {
+  val_t LifeCell__sum3;
+  { LifeCell__sum3 = LifeCell__io_bot_center.values[0]+LifeCell__io_bot_right.values[0];}
+  LifeCell__sum3 = LifeCell__sum3 & 0xfL;
+  val_t LifeCell__sum2;
+  { LifeCell__sum2 = LifeCell__io_mid_right.values[0]+LifeCell__io_bot_left.values[0];}
+  LifeCell__sum2 = LifeCell__sum2 & 0xfL;
+  val_t LifeCell__sum5;
+  { LifeCell__sum5 = LifeCell__sum2+LifeCell__sum3;}
+  LifeCell__sum5 = LifeCell__sum5 & 0xfL;
+  val_t LifeCell__sum1;
+  { LifeCell__sum1 = LifeCell__io_top_right.values[0]+LifeCell__io_mid_left.values[0];}
+  LifeCell__sum1 = LifeCell__sum1 & 0xfL;
+  val_t LifeCell__sum0;
+  { LifeCell__sum0 = LifeCell__io_top_left.values[0]+LifeCell__io_top_center.values[0];}
+  LifeCell__sum0 = LifeCell__sum0 & 0xfL;
+  val_t LifeCell__sum4;
+  { LifeCell__sum4 = LifeCell__sum0+LifeCell__sum1;}
+  LifeCell__sum4 = LifeCell__sum4 & 0xfL;
   val_t T0;
-  { T0 = LifeCell__io_top_left.values[0]+LifeCell__io_top_center.values[0];}
+  { T0 = LifeCell__sum4+LifeCell__sum5;}
   T0 = T0 & 0xfL;
-  val_t T1;
-  { T1 = T0+LifeCell__io_top_right.values[0];}
-  T1 = T1 & 0xfL;
+  { T1.values[0] = TERNARY(reset.values[0], 0x0L, T0);}
   val_t T2;
-  { T2 = T1+LifeCell__io_mid_left.values[0];}
-  T2 = T2 & 0xfL;
+  T2 = LifeCell__neighbor_sum.values[0] == 0x3L;
   val_t T3;
-  { T3 = T2+LifeCell__io_mid_right.values[0];}
-  T3 = T3 & 0xfL;
+  T3 = LifeCell__neighbor_sum.values[0] == 0x2L;
   val_t T4;
-  { T4 = T3+LifeCell__io_bot_left.values[0];}
-  T4 = T4 & 0xfL;
+  { T4 = T3 | T2;}
   val_t T5;
-  { T5 = T4+LifeCell__io_bot_center.values[0];}
-  T5 = T5 & 0xfL;
+  { T5 = TERNARY_1(LifeCell__is_alive.values[0], T4, LifeCell__is_alive.values[0]);}
   val_t T6;
-  { T6 = T5+LifeCell__io_bot_right.values[0];}
-  T6 = T6 & 0xfL;
-  { T7.values[0] = TERNARY(reset.values[0], 0x0L, T6);}
+  T6 = LifeCell__neighbor_sum.values[0] == 0x3L;
+  val_t T7;
+  { T7 = LifeCell__is_alive.values[0] ^ 0x1L;}
   val_t T8;
-  T8 = LifeCell__neighbor_sum.values[0] == 0x3L;
-  val_t T9;
-  T9 = LifeCell__neighbor_sum.values[0] == 0x2L;
-  val_t T10;
-  { T10 = T9 | T8;}
-  val_t T11;
-  { T11 = TERNARY_1(LifeCell__is_alive.values[0], T10, LifeCell__is_alive.values[0]);}
-  val_t T12;
-  T12 = LifeCell__neighbor_sum.values[0] == 0x3L;
-  val_t T13;
-  { T13 = LifeCell__is_alive.values[0] ^ 0x1L;}
-  val_t T14;
-  { T14 = TERNARY_1(T13, T12, T11);}
-  { T15.values[0] = TERNARY(reset.values[0], 0x0L, T14);}
+  { T8 = TERNARY_1(T7, T6, T5);}
+  { T9.values[0] = TERNARY(reset.values[0], 0x0L, T8);}
   { LifeCell__io_is_alive.values[0] = LifeCell__is_alive.values[0];}
 }
 
 
 void LifeCell_t::clock_hi ( dat_t<1> reset ) {
-  dat_t<4> LifeCell__neighbor_sum__shadow = T7;
-  dat_t<1> LifeCell__is_alive__shadow = T15;
-  LifeCell__neighbor_sum = T7;
-  LifeCell__is_alive = T15;
+  dat_t<4> LifeCell__neighbor_sum__shadow = T1;
+  dat_t<1> LifeCell__is_alive__shadow = T9;
+  LifeCell__neighbor_sum = T1;
+  LifeCell__is_alive = T9;
 }
 
 
