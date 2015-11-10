@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="default"
+		module="conwaylifechisel2$sources_javadoc_2.11"
+		revision="1.0"
+		conf="compile"
+		confs="compile, runtime, test, provided, optional, compile-internal, runtime-internal, test-internal, plugin, sources, docs, pom, scala-tool"
+		date="20151109133315"/>
+	<dependencies>
+		<module organisation="edu.berkeley.cs" name="chisel_2.11">
+			<revision name="2.3-SNAPSHOT" status="integration" pubdate="20151109183726" resolver="sbt-chain" artresolver="sbt-chain" downloaded="false" searched="true" default="false" conf="compile, default(compile)" position="1">
+				<metadata-artifact status="no" details="" size="1895" time="0" location="/Users/chick/.ivy2/cache/edu.berkeley.cs/chisel_2.11/ivy-2.3-SNAPSHOT.xml" searched="true" origin-is-local="true" origin-location="/Users/chick/.ivy2/local/edu.berkeley.cs/chisel_2.11/2.3-SNAPSHOT/ivys/ivy.xml"/>
+				<caller organisation="default" name="conwaylifechisel2$sources_javadoc_2.11" conf="compile" rev="2.3-SNAPSHOT" rev-constraint-default="2.3-SNAPSHOT" rev-constraint-dynamic="2.3-SNAPSHOT" callerrev="1.0"/>
+				<artifacts>
+					<artifact name="chisel_2.11" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="219061" time="0" location="/Users/chick/.ivy2/local/edu.berkeley.cs/chisel_2.11/2.3-SNAPSHOT/srcs/chisel_2.11-sources.jar">
+						<origin-location is-local="true" location="/Users/chick/.ivy2/local/edu.berkeley.cs/chisel_2.11/2.3-SNAPSHOT/srcs/chisel_2.11-sources.jar"/>
+					</artifact>
+					<artifact name="chisel_2.11" type="jar" ext="jar" status="no" details="" size="2139105" time="0" location="/Users/chick/.ivy2/local/edu.berkeley.cs/chisel_2.11/2.3-SNAPSHOT/jars/chisel_2.11.jar">
+						<origin-location is-local="true" location="/Users/chick/.ivy2/local/edu.berkeley.cs/chisel_2.11/2.3-SNAPSHOT/jars/chisel_2.11.jar"/>
+					</artifact>
+					<artifact name="chisel_2.11" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="1884515" time="0" location="/Users/chick/.ivy2/local/edu.berkeley.cs/chisel_2.11/2.3-SNAPSHOT/docs/chisel_2.11-javadoc.jar">
+						<origin-location is-local="true" location="/Users/chick/.ivy2/local/edu.berkeley.cs/chisel_2.11/2.3-SNAPSHOT/docs/chisel_2.11-javadoc.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.scala-lang" name="scala-reflect">
+			<revision name="2.11.6" status="release" pubdate="20150226010100" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.scala-lang.org/" extra-info.apiURL="http://www.scala-lang.org/api/2.11.6/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="2">
+				<license name="BSD 3-Clause" url="http://www.scala-lang.org/license.html"/>
+				<metadata-artifact status="no" details="" size="2825" time="0" location="/Users/chick/.ivy2/cache/org.scala-lang/scala-reflect/ivy-2.11.6.xml" searched="false" origin-is-local="false" origin-location="https://jcenter.bintray.com/org/scala-lang/scala-reflect/2.11.6/scala-reflect-2.11.6.pom"/>
+				<caller organisation="default" name="conwaylifechisel2$sources_javadoc_2.11" conf="compile" rev="2.11.6" rev-constraint-default="2.11.6" rev-constraint-dynamic="2.11.6" callerrev="1.0" extra-info.apiURL="http://www.scala-lang.org/api/2.11.6/"/>
+				<artifacts>
+					<artifact name="scala-reflect" type="jar" ext="jar" status="no" details="" size="4450173" time="0" location="/Users/chick/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.11.6.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/scala-reflect/2.11.6/scala-reflect-2.11.6.jar"/>
+					</artifact>
+					<artifact name="scala-reflect" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="561028" time="0" location="/Users/chick/.ivy2/cache/org.scala-lang/scala-reflect/srcs/scala-reflect-2.11.6-sources.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/scala-reflect/2.11.6/scala-reflect-2.11.6-sources.jar"/>
+					</artifact>
+					<artifact name="scala-reflect" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="4405075" time="0" location="/Users/chick/.ivy2/cache/org.scala-lang/scala-reflect/docs/scala-reflect-2.11.6-javadoc.jar">
+						<origin-location is-local="false" location="https://jcenter.bintray.com/org/scala-lang/scala-reflect/2.11.6/scala-reflect-2.11.6-javadoc.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+		<module organisation="org.scala-lang" name="scala-library">
+			<revision name="2.11.7" status="release" pubdate="20150622131702" resolver="sbt-chain" artresolver="sbt-chain" homepage="http://www.scala-lang.org/" extra-info.apiURL="http://www.scala-lang.org/api/2.11.7/" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="0">
+				<license name="BSD 3-Clause" url="http://www.scala-lang.org/license.html"/>
+				<metadata-artifact status="no" details="" size="2653" time="0" location="/Users/chick/.ivy2/cache/org.scala-lang/scala-library/ivy-2.11.7.xml" searched="false" origin-is-local="false" origin-location="https://repo1.maven.org/maven2/org/scala-lang/scala-library/2.11.7/scala-library-2.11.7.pom"/>
+				<caller organisation="default" name="conwaylifechisel2$sources_javadoc_2.11" conf="compile" rev="2.11.7" rev-constraint-default="2.11.7" rev-constraint-dynamic="2.11.7" callerrev="1.0" extra-info.apiURL="http://www.scala-lang.org/api/2.11.7/"/>
+				<artifacts>
+					<artifact name="scala-library" type="doc" ext="jar" extra-classifier="javadoc" status="no" details="" size="22812957" time="0" location="/Users/chick/.ivy2/cache/org.scala-lang/scala-library/docs/scala-library-2.11.7-javadoc.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/scala-lang/scala-library/2.11.7/scala-library-2.11.7-javadoc.jar"/>
+					</artifact>
+					<artifact name="scala-library" type="src" ext="jar" extra-classifier="sources" status="no" details="" size="908307" time="0" location="/Users/chick/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.7-sources.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/scala-lang/scala-library/2.11.7/scala-library-2.11.7-sources.jar"/>
+					</artifact>
+					<artifact name="scala-library" type="jar" ext="jar" status="no" details="" size="5745606" time="0" location="/Users/chick/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.11.7.jar">
+						<origin-location is-local="false" location="https://repo1.maven.org/maven2/org/scala-lang/scala-library/2.11.7/scala-library-2.11.7.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>
