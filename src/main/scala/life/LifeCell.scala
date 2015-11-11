@@ -20,16 +20,16 @@ class LifeCell extends Module {
     val is_alive    = Bool(OUTPUT)
   }
 
-  def set_neighbor(neighbor: LifeCell, dr:Int, dc: Int) {
-    if(dr < 0 && dc < 0)   io.top_left   := neighbor.io.is_alive
-    if(dr < 0 && dc == 0)  io.top_center := neighbor.io.is_alive
-    if(dr < 0 && dc > 0 )  io.top_right  := neighbor.io.is_alive
-    if(dr == 0 && dc < 0)  io.mid_left   := neighbor.io.is_alive
-    if(dr == 0 && dc == 0) throwException("bad connection")
-    if(dr == 0 && dc > 0)  io.mid_right  := neighbor.io.is_alive
-    if(dr > 0 && dc < 0)   io.bot_left   := neighbor.io.is_alive
-    if(dr > 0 && dc == 0)  io.bot_center := neighbor.io.is_alive
-    if(dr > 0 && dc > 0)   io.bot_right  := neighbor.io.is_alive
+  def set_neighbor(neighbor: LifeCell, delta_row:Int, delta_col: Int) {
+    if(delta_row < 0 && delta_col < 0)   io.bot_left   := neighbor.io.is_alive
+    if(delta_row < 0 && delta_col == 0)  io.bot_center := neighbor.io.is_alive
+    if(delta_row < 0 && delta_col > 0 )  io.bot_right  := neighbor.io.is_alive
+    if(delta_row == 0 && delta_col < 0)  io.mid_left   := neighbor.io.is_alive
+    if(delta_row == 0 && delta_col == 0) throwException("bad connection")
+    if(delta_row == 0 && delta_col > 0)  io.mid_right  := neighbor.io.is_alive
+    if(delta_row > 0 && delta_col < 0)   io.top_left   := neighbor.io.is_alive
+    if(delta_row > 0 && delta_col == 0)  io.top_center := neighbor.io.is_alive
+    if(delta_row > 0 && delta_col > 0)   io.top_right  := neighbor.io.is_alive
   }
 
   val is_alive = Reg(init=Bool(false))
@@ -51,7 +51,7 @@ class LifeCell extends Module {
 
   neighbor_sum := sum4 + sum5
 
-    when(is_alive) {
+  when(is_alive) {
     is_alive := neighbor_sum === UInt(2) || neighbor_sum === UInt(3)
   } otherwise {
     is_alive := neighbor_sum === UInt(3)
