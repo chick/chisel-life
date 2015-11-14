@@ -33,9 +33,12 @@ class LifeCell extends Module {
   }
 
   val is_alive = Reg(init=Bool(false))
-  val neighbor_sum = Reg(init=UInt(0, 4))
+//  val neighbor_sum = Reg(init=UInt(0, 4))
 
-//  neighbor_sum :=
+//  val is_alive = Reg(Bool(false))
+//  val neighbor_sum = Reg(UInt(0, width=4))
+
+  //  neighbor_sum :=
 //    io.top_left + io.top_center + io.top_right +
 //      io.mid_left + io.mid_right +
 //      io.bot_left + io.bot_center + io.bot_right
@@ -49,7 +52,7 @@ class LifeCell extends Module {
   val sum4 = sum0 + sum1
   val sum5 = sum2 + sum3
 
-  neighbor_sum := sum4 + sum5
+  val neighbor_sum = sum4 + sum5
 
   when(is_alive) {
     is_alive := neighbor_sum === UInt(2) || neighbor_sum === UInt(3)
@@ -93,13 +96,31 @@ class LifeCellTests(c: LifeCell) extends Tester(c) { self =>
   peek(c.neighbor_sum)
 
   expect(c.io.is_alive, BigInt(1))
+
+  poke(c.is_alive, 1)
+  poke(c.io.top_left, 0)
+  poke(c.io.top_center, 0)
+  poke(c.io.top_right, 0)
+  poke(c.io.mid_left, 1)
+  poke(c.io.mid_right, 1)
+  poke(c.io.bot_left, 0)
+  poke(c.io.bot_center, 0)
+  poke(c.io.bot_right, 0)
+
+  expect(c.is_alive, 1)
+  step(1)
+  expect(c.neighbor_sum, 2)
+  expect(c.is_alive, 1)
+  step(1)
+  expect(c.is_alive, 1)
+
 }
 
 object LifeCell {
   def main(args: Array[String]): Unit = {
     chiselMainTest(
-//      Array[String]("--backend", "c", "--compile", "--test", "--genHarness"),
-      Array[String]("--backend", "dot"),
+      Array[String]("--backend", "c", "--compile", "--test", "--genHarness"),
+//      Array[String]("--backend", "dot"),
       () => Module(new LifeCell())
     ) {
       c => new LifeCellTests(c)

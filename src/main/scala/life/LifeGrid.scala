@@ -7,7 +7,7 @@ import Chisel._
  */
 class LifeGrid(val rows: Int=5, val cols: Int = 5) extends Module {
   val io = new Bundle {val running = Bool(OUTPUT)}
-  val grid = Array.fill[LifeCell](rows, cols) { Module(new LifeCell()) }
+  val grid = Array.fill(rows, cols) { Module(new LifeCell()) }
 
   for { row_index <- Range(0, rows)
         col_index <- Range(0, cols)
@@ -32,7 +32,7 @@ class LifeGrid(val rows: Int=5, val cols: Int = 5) extends Module {
 class LifeGridTests(c: LifeGrid) extends Tester(c, false) { self =>
   poke(c.grid(2)(2).is_alive, 1)
 
-  step(2)
+  step(1)
 
   expect(c.grid(2)(2).is_alive, BigInt(0))
 
@@ -46,23 +46,28 @@ class LifeGridTests(c: LifeGrid) extends Tester(c, false) { self =>
   expect(c.grid(2)(2).is_alive, BigInt(1))
   expect(c.grid(2)(3).is_alive, BigInt(1))
 
+  expect(c.grid(2)(2).is_alive, 1)
+  println("about to step")
   step(1)
   show()
-  step(1)
-  show()
+  expect(c.grid(2)(2).is_alive, 1)
+//  expect(c.grid(2)(2).neighbor_sum, 2) show()
 
   expect(c.grid(2)(1).is_alive, BigInt(0))
   expect(c.grid(2)(2).is_alive, BigInt(1))
   expect(c.grid(2)(3).is_alive, BigInt(0))
 
+  step(1)
+  show()
+
   def show(): Unit = {
-    System.out.println("+" + ("-" * c.grid.size) + "|")
+    System.out.println("+" + ("-" * c.grid.size) + "+")
     for {
       row <- c.grid
     } {
       System.out.println("|" + row.map { cell => if(peek(cell.is_alive)==1) "*" else " "}.mkString("") + "|")
     }
-    System.out.println("+" + ("-" * c.grid.size) + "|")
+    System.out.println("+" + ("-" * c.grid.size) + "+")
   }
 }
 
