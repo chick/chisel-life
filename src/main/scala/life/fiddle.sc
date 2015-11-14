@@ -17,19 +17,14 @@ class Plink extends SimpleLink {
 }
 
 class FilterIO extends Bundle {
-  val x = new Plink().flip
+  val x = new Plink().flip()
   val y = new Plink()
 }
 
 def f[T](ot: Option[T]) : Unit = {
   ot match {
-    case Some(t) => {
-      System.out.println (s"some t $t")
-    }
-    case None => {
-      System.out.println("got none")
-    }
-
+    case Some(t) => System.out.println(s"some t $t")
+    case None => System.out.println("got none")
   }
   print(s"ot $ot")
 }

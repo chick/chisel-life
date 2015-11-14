@@ -18,9 +18,8 @@ class LifeGrid(val rows: Int=5, val cols: Int = 5) extends Module {
       neighbor_col_delta <- Array(-1, 0, 1)
       dr = row_index + neighbor_row_delta
       dc = col_index + neighbor_col_delta
-      if(!(neighbor_col_delta == 0 && neighbor_row_delta == 0) &&
-          (0 <= dr && dr < rows && 0 <= dc && dc < cols)
-        )
+      if !(neighbor_col_delta == 0 && neighbor_row_delta == 0) &&
+         0 <= dr && dr < rows && 0 <= dc && dc < cols
     } {
       val neighbor_cell = grid(row_index + neighbor_row_delta)(col_index + neighbor_col_delta)
       cell.set_neighbor(neighbor_cell, neighbor_row_delta, neighbor_col_delta)
@@ -60,14 +59,19 @@ class LifeGridTests(c: LifeGrid) extends Tester(c, false) { self =>
   step(1)
   show()
 
+  for(g <- 0 until 100) {
+    step(1)
+    show()
+  }
+
   def show(): Unit = {
-    System.out.println("+" + ("-" * c.grid.size) + "+")
+    System.out.println("+" + ("-" * c.grid.length) + "+")
     for {
       row <- c.grid
     } {
-      System.out.println("|" + row.map { cell => if(peek(cell.is_alive)==1) "*" else " "}.mkString("") + "|")
+      System.out.println("|" + row.map { cell => if(peek(cell.is_alive)==BigInt(1)) "*" else " "}.mkString("") + "|")
     }
-    System.out.println("+" + ("-" * c.grid.size) + "+")
+    System.out.println("+" + ("-" * c.grid.length) + "+")
   }
 }
 
