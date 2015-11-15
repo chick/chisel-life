@@ -8,6 +8,7 @@ import Chisel._
  */
 class LifeCell extends Module {
   val io = new Bundle {
+    val running     = Bool(INPUT)
     val top_left    = UInt(INPUT, width=4)
     val top_center  = UInt(INPUT, width=4)
     val top_right   = UInt(INPUT, width=4)
@@ -33,17 +34,7 @@ class LifeCell extends Module {
   }
 
   val is_alive = Reg(init=Bool(false))
-//  val neighbor_sum = Reg(init=UInt(0, 4))
 
-//  val is_alive = Reg(Bool(false))
-//  val neighbor_sum = Reg(UInt(0, width=4))
-
-  //  neighbor_sum :=
-//    io.top_left + io.top_center + io.top_right +
-//      io.mid_left + io.mid_right +
-//      io.bot_left + io.bot_center + io.bot_right
-//
-//
   val sum0 = io.top_left + io.top_center
   val sum1 = io.top_right + io.mid_left
   val sum2 = io.mid_right + io.bot_left
@@ -64,56 +55,91 @@ class LifeCell extends Module {
 }
 
 class LifeCellTests(c: LifeCell) extends Tester(c) { self =>
-  poke(c.io.top_left, 0)
-  poke(c.io.top_center, 0)
-  poke(c.io.top_right, 0)
-  poke(c.io.mid_left, 0)
-  poke(c.io.mid_right, 0)
-  poke(c.io.bot_left, 0)
-  poke(c.io.bot_center, 0)
-  poke(c.io.bot_right, 0)
-  peek(c.neighbor_sum)
+  def set_neighbors(
+                     ntl: Int, ntc: Int, ntr: Int,
+                     nml: Int, nmc: Int, nmr: Int,
+                     nbl: Int, nbc: Int, nbr: Int): Unit = {
+    poke(c.io.top_left, ntl)
+    poke(c.io.top_center, ntc)
+    poke(c.io.top_right, ntr)
+    poke(c.io.mid_left, nml)
+    // center "neighbor" is the value of the cell itself
+    poke(c.is_alive, nmc)
+    poke(c.io.mid_right, nmr)
+    poke(c.io.bot_left, nbl)
+    poke(c.io.bot_center, nbc)
+    poke(c.io.bot_right, nbr)
+  }
 
-  step(2)
-
-  peek(c.io.is_alive)
-  peek(c.io.top_left)
-  expect(c.io.is_alive, BigInt(0))
-
-  poke(c.io.top_left, 1)
-  poke(c.io.top_center, 1)
-  poke(c.io.top_right, 1)
-  poke(c.io.mid_left, 0)
-  poke(c.io.mid_right, 0)
-  poke(c.io.bot_left, 0)
-  poke(c.io.bot_center, 0)
-  poke(c.io.bot_right, 0)
-
-  step(2)
-
-  peek(c.io.is_alive)
-  peek(c.io.top_left)
-  peek(c.neighbor_sum)
-
-  expect(c.io.is_alive, BigInt(1))
-
-  poke(c.is_alive, 1)
-  poke(c.io.top_left, 0)
-  poke(c.io.top_center, 0)
-  poke(c.io.top_right, 0)
-  poke(c.io.mid_left, 1)
-  poke(c.io.mid_right, 1)
-  poke(c.io.bot_left, 0)
-  poke(c.io.bot_center, 0)
-  poke(c.io.bot_right, 0)
-
-  expect(c.is_alive, 1)
+  // dead cell with no neighbors stays dead
+  set_neighbors(
+    0,0,0,
+    0,0,0,
+    0,0,0
+  )
   step(1)
-  expect(c.neighbor_sum, 2)
-  expect(c.is_alive, 1)
-  step(1)
-  expect(c.is_alive, 1)
+  expect(c.io.is_alive, 0)
 
+  // dead cell with > 3 neighbors stays dead
+  set_neighbors(
+    1,1,1,
+    1,0,1,
+    1,1,1
+  )
+  step(1)
+  expect(c.io.is_alive, 0)
+
+  // live cell with > 3 neighbors stays dead
+  set_neighbors(
+    1,1,1,
+    1,1,1,
+    1,1,1
+  )
+  step(1)
+  expect(c.io.is_alive, 0)
+
+  // dead cell with exactly three neighbors becomes alive
+  set_neighbors(
+    1,0,0,
+    1,0,0,
+    1,0,0
+  )
+  step(1)
+  expect(c.io.is_alive, 1)
+  set_neighbors(
+    1,0,0,
+    0,0,1,
+    0,1,0
+  )
+  step(1)
+  expect(c.io.is_alive, 1)
+
+  // live cell with one neighbor dies
+  set_neighbors(
+    0,0,0,
+    0,1,1,
+    0,0,0
+  )
+  step(1)
+  expect(c.io.is_alive, 0)
+
+  // live cell with exactly three neighbors stays alive
+  set_neighbors(
+    1,0,0,
+    1,1,0,
+    1,0,0
+  )
+  step(1)
+  expect(c.io.is_alive, 1)
+
+  // live cell with exactly four neighbors dies
+  set_neighbors(
+    1,0,0,
+    1,1,1,
+    1,0,0
+  )
+  step(1)
+  expect(c.io.is_alive, 0)
 }
 
 object LifeCell {

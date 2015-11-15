@@ -4,7 +4,7 @@
 		module="conwaylifechisel2-build"
 		revision="0.1-SNAPSHOT"
 		status="integration"
-		publication="20151109223315"
+		publication="20151115073953"
 		e:sbtVersion="0.13" e:scalaVersion="2.10"
 	>
 		<description>

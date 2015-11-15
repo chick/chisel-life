@@ -5,14 +5,17 @@ import Chisel._
 /**
  * Created by chick on 11/10/15.
  */
-class LifeGrid(val rows: Int=5, val cols: Int = 5) extends Module {
+class LifeGrid(val rows: Int=20, val cols: Int = 40) extends Module {
   val io = new Bundle {val running = Bool(OUTPUT)}
   val grid = Array.fill(rows, cols) { Module(new LifeCell()) }
+
+  val running = Reg(Bool(true))
 
   for { row_index <- Range(0, rows)
         col_index <- Range(0, cols)
         cell = grid(row_index)(col_index)
   } {
+    cell.io.running := running
     for {
       neighbor_row_delta <- Array(-1, 0, 1)
       neighbor_col_delta <- Array(-1, 0, 1)
@@ -29,50 +32,65 @@ class LifeGrid(val rows: Int=5, val cols: Int = 5) extends Module {
 }
 
 class LifeGridTests(c: LifeGrid) extends Tester(c, false) { self =>
-  poke(c.grid(2)(2).is_alive, 1)
+  def test_blinker() {
+    poke(c.grid(2)(2).is_alive, 1)
 
-  step(1)
+    step(1)
 
-  expect(c.grid(2)(2).is_alive, BigInt(0))
+    expect(c.grid(2)(2).is_alive, BigInt(0))
 
-  poke(c.grid(2)(1).is_alive, 1)
-  poke(c.grid(2)(2).is_alive, 1)
-  poke(c.grid(2)(3).is_alive, 1)
+    poke(c.grid(2)(1).is_alive, 1)
+    poke(c.grid(2)(2).is_alive, 1)
+    poke(c.grid(2)(3).is_alive, 1)
 
-  show()
+    show()
 
-  expect(c.grid(2)(1).is_alive, BigInt(1))
-  expect(c.grid(2)(2).is_alive, BigInt(1))
-  expect(c.grid(2)(3).is_alive, BigInt(1))
+    //  expect(c.grid(2)(1).is_alive, BigInt(1))
+    //  expect(c.grid(2)(2).is_alive, BigInt(1))
+    //  expect(c.grid(2)(3).is_alive, BigInt(1))
 
-  expect(c.grid(2)(2).is_alive, 1)
-  println("about to step")
-  step(1)
-  show()
-  expect(c.grid(2)(2).is_alive, 1)
-//  expect(c.grid(2)(2).neighbor_sum, 2) show()
-
-  expect(c.grid(2)(1).is_alive, BigInt(0))
-  expect(c.grid(2)(2).is_alive, BigInt(1))
-  expect(c.grid(2)(3).is_alive, BigInt(0))
-
-  step(1)
-  show()
-
-  for(g <- 0 until 100) {
+    expect(c.grid(2)(2).is_alive, 1)
+    println("about to step")
     step(1)
     show()
+    expect(c.grid(2)(2).is_alive, 1)
+    //  expect(c.grid(2)(2).neighbor_sum, 2) show()
+
+    expect(c.grid(2)(1).is_alive, BigInt(0))
+    expect(c.grid(2)(2).is_alive, BigInt(1))
+    expect(c.grid(2)(3).is_alive, BigInt(0))
+
+    step(1)
+    show()
+
+    for (g <- 0 until 10) {
+      step(1)
+      show()
+    }
   }
 
+  def test_line() {
+    for (r <- 0 until c.grid.length) {
+      poke(c.grid(r)(2).is_alive, 1)
+    }
+
+    for (g <- 0 until 10) {
+      step(1)
+      show()
+    }
+  }
   def show(): Unit = {
-    System.out.println("+" + ("-" * c.grid.length) + "+")
+    System.out.println("+" + ("-" * c.grid.head.length) + "+")
     for {
       row <- c.grid
     } {
       System.out.println("|" + row.map { cell => if(peek(cell.is_alive)==BigInt(1)) "*" else " "}.mkString("") + "|")
     }
-    System.out.println("+" + ("-" * c.grid.length) + "+")
+    System.out.println("+" + ("-" * c.grid.head.length) + "+")
   }
+
+  test_blinker()
+  test_line()
 }
 
 
