@@ -1,0 +1,20 @@
+digraph TopTop {
+rankdir = LR;
+subgraph clusterLifeCell{
+label = "LifeCell";
+subgraph clusterio__0{
+node [shape=box];
+label = "io";
+io_bot_center[label="bot_center"];
+io_bot_left[label="bot_left"];
+io_bot_right[label="bot_right"];
+io_is_alive[label="is_alive"];
+is_alive -> io_is_alive[label="1"];
+io_mid_left[label="mid_left"];
+io_mid_right[label="mid_right"];
+io_top_center[label="top_center"];
+io_top_left[label="top_left"];
+io_top_right[label="top_right"];
+}
+}
+}
