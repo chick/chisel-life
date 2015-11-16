@@ -9,13 +9,14 @@ class LifeGrid(val rows: Int=20, val cols: Int = 40) extends Module {
   val io = new Bundle {val running = Bool(OUTPUT)}
   val grid = Array.fill(rows, cols) { Module(new LifeCell()) }
 
-  val running = Reg(Bool(true))
+  val running = Reg(init=Bool(true))
+  io.running := running
 
   for { row_index <- Range(0, rows)
         col_index <- Range(0, cols)
         cell = grid(row_index)(col_index)
   } {
-    cell.io.running := running
+    cell.io.running := io.running
     for {
       neighbor_row_delta <- Array(-1, 0, 1)
       neighbor_col_delta <- Array(-1, 0, 1)
@@ -32,7 +33,17 @@ class LifeGrid(val rows: Int=20, val cols: Int = 40) extends Module {
 }
 
 class LifeGridTests(c: LifeGrid) extends Tester(c, false) { self =>
+  def clear(): Unit = {
+    for {row_index <- c.grid.indices
+         col_index <- c.grid(0).indices
+    } {
+      poke(c.grid(row_index)(col_index).is_alive, 0)
+    }
+  }
+
   def test_blinker() {
+    clear()
+
     poke(c.grid(2)(2).is_alive, 1)
 
     step(1)
@@ -50,7 +61,6 @@ class LifeGridTests(c: LifeGrid) extends Tester(c, false) { self =>
     //  expect(c.grid(2)(3).is_alive, BigInt(1))
 
     expect(c.grid(2)(2).is_alive, 1)
-    println("about to step")
     step(1)
     show()
     expect(c.grid(2)(2).is_alive, 1)
@@ -60,7 +70,20 @@ class LifeGridTests(c: LifeGrid) extends Tester(c, false) { self =>
     expect(c.grid(2)(2).is_alive, BigInt(1))
     expect(c.grid(2)(3).is_alive, BigInt(0))
 
+    // stop machine running, despite step, things should stay the same
+    poke(c.running, 0)
     step(1)
+    expect(c.grid(2)(1).is_alive, BigInt(0))
+    expect(c.grid(2)(2).is_alive, BigInt(1))
+    expect(c.grid(2)(3).is_alive, BigInt(0))
+    show()
+
+    // start machine back up
+    poke(c.running, 1)
+    step(1)
+    expect(c.grid(2)(1).is_alive, BigInt(1))
+    expect(c.grid(2)(2).is_alive, BigInt(1))
+    expect(c.grid(2)(3).is_alive, BigInt(1))
     show()
 
     for (g <- 0 until 10) {
@@ -70,8 +93,10 @@ class LifeGridTests(c: LifeGrid) extends Tester(c, false) { self =>
   }
 
   def test_line() {
-    for (r <- 0 until c.grid.length) {
-      poke(c.grid(r)(2).is_alive, 1)
+    clear()
+
+    for(row <- c.grid.indices) {
+      poke(c.grid(row)(2).is_alive, 1)
     }
 
     for (g <- 0 until 10) {
@@ -79,6 +104,7 @@ class LifeGridTests(c: LifeGrid) extends Tester(c, false) { self =>
       show()
     }
   }
+
   def show(): Unit = {
     System.out.println("+" + ("-" * c.grid.head.length) + "+")
     for {

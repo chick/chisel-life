@@ -45,10 +45,12 @@ class LifeCell extends Module {
 
   val neighbor_sum = sum4 + sum5
 
-  when(is_alive) {
-    is_alive := neighbor_sum === UInt(2) || neighbor_sum === UInt(3)
-  } otherwise {
-    is_alive := neighbor_sum === UInt(3)
+  when(io.running) {
+    when(is_alive) {
+      is_alive := neighbor_sum === UInt(2) || neighbor_sum === UInt(3)
+    } otherwise {
+      is_alive := neighbor_sum === UInt(3)
+    }
   }
 
   io.is_alive := is_alive
@@ -70,6 +72,8 @@ class LifeCellTests(c: LifeCell) extends Tester(c) { self =>
     poke(c.io.bot_center, nbc)
     poke(c.io.bot_right, nbr)
   }
+
+  poke(c.io.running, 1)
 
   // dead cell with no neighbors stays dead
   set_neighbors(
