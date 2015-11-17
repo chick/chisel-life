@@ -5,7 +5,7 @@ import Chisel._
 /**
  * Created by chick on 11/10/15.
  */
-class LifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
+class AddressableLifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
   val io = new Bundle {
     val running      = Bool(OUTPUT)
     val address      = UInt(INPUT, width=32)
@@ -30,7 +30,7 @@ class LifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
       dr = row_index + neighbor_row_delta
       dc = col_index + neighbor_col_delta
       if !(neighbor_col_delta == 0 && neighbor_row_delta == 0) &&
-         0 <= dr && dr < rows && 0 <= dc && dc < cols
+        0 <= dr && dr < rows && 0 <= dc && dc < cols
     } {
       val neighbor_cell = grid(row_index + neighbor_row_delta)(col_index + neighbor_col_delta)
       cell.set_neighbor(neighbor_cell, neighbor_row_delta, neighbor_col_delta)
@@ -38,20 +38,20 @@ class LifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
     }
   }
 
-//  val row_address = io.address / UInt(cols)
-//  val col_address = io.address % UInt(cols)
-//  when(io.write_enable) {
-//    grid(Int(row_address))(col_address).is_alive := io.set_alive
-//  }
-//  when(io.read_enable) {
-//    val row_addres  s = io.address / cols
-//    val col_address = io.address % cols
-//    io.alive_value = grid(row_address)(col_address).is_alive
-//  }
+  //  val row_address = io.address / UInt(cols)
+  //  val col_address = io.address % UInt(cols)
+  //  when(io.write_enable) {
+  //    grid(Int(row_address))(col_address).is_alive := io.set_alive
+  //  }
+  //  when(io.read_enable) {
+  //    val row_addres  s = io.address / cols
+  //    val col_address = io.address % cols
+  //    io.alive_value = grid(row_address)(col_address).is_alive
+  //  }
 
 }
 
-class LifeGridTests(c: LifeGrid) extends Tester(c, false) { self =>
+class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c, false) { self =>
   def clear(): Unit = {
     for {row_index <- c.grid.indices
          col_index <- c.grid(0).indices
@@ -141,14 +141,14 @@ class LifeGridTests(c: LifeGrid) extends Tester(c, false) { self =>
 
 
 
-object LifeGrid {
+object AddressableLifeGrid {
   def main(args: Array[String]): Unit = {
     chiselMainTest(
-            Array[String]("--backend", "c", "--compile", "--test", "--genHarness"),
-//      Array[String]("--backend", "dot"),
-      () => Module(new LifeGrid())
+      Array[String]("--backend", "c", "--compile", "--test", "--genHarness"),
+      //      Array[String]("--backend", "dot"),
+      () => Module(new AddressableLifeGrid())
     ) {
-      c => new LifeGridTests(c)
+      c => new AddressableLifeGridTests(c)
     }
   }
 }
