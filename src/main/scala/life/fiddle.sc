@@ -12,6 +12,11 @@ class SimpleLink extends Bundle {
   val valid = Bool(OUTPUT)
 }
 
+val aa = Array.tabulate(10) { i => i+i }
+
+val s = new SimpleLink()
+
+
 class Plink extends SimpleLink {
   val parity = UInt(OUTPUT, 5)
 }
