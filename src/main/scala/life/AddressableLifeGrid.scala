@@ -20,6 +20,9 @@ class AddressableLifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
   val running = Reg(init=Bool(true))
   io.running := running
 
+  // Initialize the neighbor connection
+  // by iterating over the moore neighborhood and connection
+  // each cells input the the alive of the
   for { row_index <- Range(0, rows)
         col_index <- Range(0, cols)
         cell = grid(row_index)(col_index)
@@ -35,7 +38,6 @@ class AddressableLifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
     } {
       val neighbor_cell = grid(row_index + neighbor_row_delta)(col_index + neighbor_col_delta)
       cell.set_neighbor(neighbor_cell, neighbor_row_delta, neighbor_col_delta)
-      neighbor_cell.set_neighbor(cell, -neighbor_row_delta, -neighbor_col_delta)
     }
   }
 
@@ -81,24 +83,34 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
     clear()
     pause()
 
-    poke(c.grid(0)(0).is_alive, 1)
-    poke(c.grid(1)(1).is_alive, 1)
+    for {
+      i <- 0 until c.rows
+      j <- 0 until c.cols
+    } {
+      poke(c.grid(i)(j).is_alive, if ((i + j) % 5 == 0) 0 else 1)
+    }
     step(1)
 
     expect(c.running, 0)
-    expect(c.grid(1)(1).io.is_alive, 1)
+    for {
+      i <- 0 until c.rows
+      j <- 0 until c.cols
+    } {
+      expect(c.grid(i)(j).io.is_alive, if ((i + j) % 5 == 0) 0 else 1)
+    }
 
     for {
       i <- 0 until c.rows
       j <- 0 until c.cols
     } {
       read(i, j)
-      expect(c.io.alive_value, if(i==j) 1 else 0)
+      expect(c.io.alive_value, if ((i + j) % 5 == 0) 0 else 1)
     }
   }
 
   def test_blinker() {
     clear()
+    run()
 
     poke(c.grid(2)(2).is_alive, 1)
 
@@ -112,15 +124,10 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
 
     show()
 
-    //  expect(c.grid(2)(1).is_alive, BigInt(1))
-    //  expect(c.grid(2)(2).is_alive, BigInt(1))
-    //  expect(c.grid(2)(3).is_alive, BigInt(1))
-
     expect(c.grid(2)(2).is_alive, 1)
     step(1)
     show()
     expect(c.grid(2)(2).is_alive, 1)
-    //  expect(c.grid(2)(2).neighbor_sum, 2) show()
 
     expect(c.grid(2)(1).is_alive, BigInt(0))
     expect(c.grid(2)(2).is_alive, BigInt(1))
@@ -142,10 +149,10 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
     expect(c.grid(2)(3).is_alive, BigInt(1))
     show()
 
-    for (g <- 0 until 10) {
-      step(1)
-      show()
-    }
+//    for (g <- 0 until 10) {
+//      step(1)
+//      show()
+//    }
   }
 
   def test_line() {
@@ -162,18 +169,18 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
   }
 
   def show(): Unit = {
-    System.out.println("+" + ("-" * c.grid.head.length) + "+")
-    for {
-      row <- c.grid
-    } {
-      System.out.println("|" + row.map { cell => if(peek(cell.is_alive)==BigInt(1)) "*" else " "}.mkString("") + "|")
-    }
-    System.out.println("+" + ("-" * c.grid.head.length) + "+")
+//    System.out.println("+" + ("-" * c.grid.head.length) + "+")
+//    for {
+//      row <- c.grid
+//    } {
+//      System.out.println("|" + row.map { cell => if(peek(cell.is_alive)==BigInt(1)) "*" else " "}.mkString("") + "|")
+//    }
+//    System.out.println("+" + ("-" * c.grid.head.length) + "+")
   }
 
   test_grid_reading()
-//  test_blinker()
-  // test_line()
+  test_blinker()
+  test_line()
 }
 
 object AddressableLifeGrid {
@@ -181,7 +188,7 @@ object AddressableLifeGrid {
     chiselMainTest(
       Array[String]("--backend", "c", "--compile", "--test", "--genHarness"),
 //            Array[String]("--backend", "dot"),
-      () => Module(new AddressableLifeGrid(2, 2))
+      () => Module(new AddressableLifeGrid(5,5))
     ) {
       c => new AddressableLifeGridTests(c)
     }
