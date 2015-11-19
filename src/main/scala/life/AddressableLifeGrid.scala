@@ -233,9 +233,9 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
   }
 
   test_grid_writing()
-//  test_grid_reading()
-//  test_blinker()
-//  test_line()
+  test_grid_reading()
+  test_blinker()
+  test_line()
 }
 
 object AddressableLifeGrid {
