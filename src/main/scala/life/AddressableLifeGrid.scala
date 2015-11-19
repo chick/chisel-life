@@ -130,6 +130,36 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
     }
   }
 
+  def test_grid_writing(): Unit = {
+    clear()
+    pause()
+
+    def write_cell(row: Int, col: Int, set_alive: Boolean): Unit = {
+      poke(c.io.row_address, row)
+      poke(c.io.col_address, col)
+      poke(c.io.set_alive, if(set_alive) 1 else 0)
+      poke(c.io.set_dead, if(!set_alive) 1 else 0)
+      poke(c.io.write_enable, 1)
+      step(1)
+      poke(c.io.write_enable, 0)
+    }
+
+    def test_read_write(): Unit = {
+      for {
+        i <- 0 until c.rows
+        j <- 0 until c.cols
+      } {
+        write_cell(i, j, set_alive = true)
+        expect(c.grid(i)(j).io.is_alive, 1)
+        write_cell(i, j, set_alive = false)
+        expect(c.grid(i)(j).io.is_alive, 0)
+//        show()
+      }
+    }
+
+    test_read_write()
+  }
+
   def test_blinker() {
     clear()
     run()
@@ -202,9 +232,10 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
     isTrace = true
   }
 
-  test_grid_reading()
-  test_blinker()
-  test_line()
+  test_grid_writing()
+//  test_grid_reading()
+//  test_blinker()
+//  test_line()
 }
 
 object AddressableLifeGrid {
