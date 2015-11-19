@@ -12,6 +12,7 @@ class AddressableLifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
     val col_address  = UInt(INPUT, width = 32)
     val write_enable = Bool(INPUT)
     val set_alive    = Bool(INPUT)
+    val set_dead     = Bool(INPUT)
     val alive_value  = Bool(OUTPUT)
   }
   val grid = Array.fill(rows, cols)(Module(new LifeCell()))
@@ -43,11 +44,15 @@ class AddressableLifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
     }
   }
 
+  // DEMUX set_alive into cells based on row and col address
+  // the individual's cell is set to set_alive
   Array.tabulate(rows) { row =>
     val row_enabled = Mux(UInt(row) === io.row_address, Bool(true), Bool(false))
     Array.tabulate(cols) { col =>
       grid(row)(col).io.set_alive := Mux(
-        (UInt(col) === io.col_address) && row_enabled && io.write_enable, Bool(true), Bool(false))
+        (UInt(col) === io.col_address) && row_enabled && io.write_enable, io.set_alive, Bool(false))
+      grid(row)(col).io.set_dead := Mux(
+        (UInt(col) === io.col_address) && row_enabled && io.write_enable, io.set_dead, Bool(false))
     }
   }
   // set up a mux to access the alive state of any cell
