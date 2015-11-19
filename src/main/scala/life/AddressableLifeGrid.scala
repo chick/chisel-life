@@ -5,6 +5,16 @@ import Chisel._
 /**
  * Created by chick on 11/10/15.
  */
+
+/**
+ * Implements a circuit for Conway's "Game of Life", which every cell is updated every clock cycle.
+ * This class implements the grid along with read and write methods for every cell.
+ * The grid can be paused or running
+ * Each grid element is an LifeCell
+ *
+ * @param rows  number of rows in the grid
+ * @param cols  number of columns in the grid
+ */
 class AddressableLifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
   val io = new Bundle {
     val running      = Bool(OUTPUT)
@@ -22,7 +32,7 @@ class AddressableLifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
 
   // Initialize the neighbor connection
   // by iterating over the moore neighborhood and connecting
-  // each cells input to the alive of the neighbor
+  // each cells input to the io.is_alive of the neighbor
   for { row_index <- Range(0, rows)
         col_index <- Range(0, cols)
         cell = grid(row_index)(col_index)
@@ -44,8 +54,8 @@ class AddressableLifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
     }
   }
 
-  // DEMUX set_alive into cells based on row and col address
-  // the individual's cell is set to set_alive
+  // DEMUX the set_alive and set_dead write instructions into cells based on row and col address
+  // the individual's cell is set according to which line is set
   Array.tabulate(rows) { row =>
     val row_enabled = Mux(UInt(row) === io.row_address, Bool(true), Bool(false))
     Array.tabulate(cols) { col =>
