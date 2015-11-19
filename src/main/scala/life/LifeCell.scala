@@ -18,6 +18,9 @@ class LifeCell extends Module {
     val bot_center  = UInt(INPUT, width=4)
     val bot_right   = UInt(INPUT, width=4)
 
+    val set_alive   = Bool(INPUT)
+    val set_dead    = Bool(INPUT)
+
     val is_alive    = Bool(OUTPUT)
   }
 
@@ -45,13 +48,27 @@ class LifeCell extends Module {
 
   val neighbor_sum = sum4 + sum5
 
-  when(io.running) {
-    when(is_alive) {
-      is_alive := neighbor_sum === UInt(2) || neighbor_sum === UInt(3)
-    } otherwise {
-      is_alive := neighbor_sum === UInt(3)
-    }
-  }
+  is_alive := MuxCase(is_alive,
+    Seq(
+      io.set_alive              -> Bool(true),
+      io.set_dead               -> Bool(false),
+      (io.running && is_alive)  -> (neighbor_sum === UInt(2) || neighbor_sum === UInt(3)),
+      (io.running && !is_alive) -> (neighbor_sum === UInt(3))
+    )
+  )
+//  when(io.set_alive) {
+//    is_alive := Bool(true)
+//  }.elsewhen(io.set_dead) {
+//    is_alive := Bool(false)
+//  }
+//
+//  when(io.running) {
+//    when(is_alive) {
+//      is_alive := neighbor_sum === UInt(2) || neighbor_sum === UInt(3)
+//    } otherwise {
+//      is_alive := neighbor_sum === UInt(3)
+//    }
+//  }
 
   io.is_alive := is_alive
 }
@@ -144,6 +161,37 @@ class LifeCellTests(c: LifeCell) extends Tester(c) { self =>
   )
   step(1)
   expect(c.io.is_alive, 0)
+
+  // test set_alive
+  set_neighbors(
+    0,0,0,
+    0,0,0,
+    0,0,0
+  )
+  poke(c.io.set_alive, 1)
+  poke(c.io.set_dead, 0)
+  poke(c.io.running, 1)
+  step(1)
+  expect(c.io.is_alive, 1)
+
+  poke(c.io.set_alive, 1)
+  poke(c.io.set_dead, 0)
+  poke(c.io.running, 0)
+  step(1)
+  expect(c.io.is_alive, 1)
+
+  poke(c.io.set_dead, 1)
+  poke(c.io.set_alive, 0)
+  poke(c.io.running, 1)
+  step(1)
+  expect(c.io.is_alive, 0)
+
+  poke(c.io.set_dead, 1)
+  poke(c.io.set_alive, 0)
+  poke(c.io.running, 0)
+  step(1)
+  expect(c.io.is_alive, 0)
+
 }
 
 object LifeCell {

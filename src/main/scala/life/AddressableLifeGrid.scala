@@ -7,13 +7,12 @@ import Chisel._
  */
 class AddressableLifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
   val io = new Bundle {
-    val running = Bool(OUTPUT)
-    val row_address = UInt(INPUT, width = 32)
-    val col_address = UInt(INPUT, width = 32)
+    val running      = Bool(OUTPUT)
+    val row_address  = UInt(INPUT, width = 32)
+    val col_address  = UInt(INPUT, width = 32)
     val write_enable = Bool(INPUT)
-    val set_alive = Bool(INPUT)
-    val read_enable = Bool(INPUT)
-    val alive_value = Bool(OUTPUT)
+    val set_alive    = Bool(INPUT)
+    val alive_value  = Bool(OUTPUT)
   }
   val grid = Array.fill(rows, cols)(Module(new LifeCell()))
 
@@ -21,8 +20,8 @@ class AddressableLifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
   io.running := running
 
   // Initialize the neighbor connection
-  // by iterating over the moore neighborhood and connection
-  // each cells input the the alive of the
+  // by iterating over the moore neighborhood and connecting
+  // each cells input to the alive of the neighbor
   for { row_index <- Range(0, rows)
         col_index <- Range(0, cols)
         cell = grid(row_index)(col_index)
@@ -31,32 +30,45 @@ class AddressableLifeGrid(val rows: Int=10, val cols: Int = 20) extends Module {
     for {
       neighbor_row_delta <- Array(-1, 0, 1)
       neighbor_col_delta <- Array(-1, 0, 1)
-      dr = row_index + neighbor_row_delta
-      dc = col_index + neighbor_col_delta
+      neighbor_row = row_index + neighbor_row_delta
+      neighbor_col = col_index + neighbor_col_delta
       if !(neighbor_col_delta == 0 && neighbor_row_delta == 0) &&
-        0 <= dr && dr < rows && 0 <= dc && dc < cols
+        valid_neighbor(neighbor_row, neighbor_col)
     } {
-      val neighbor_cell = grid(row_index + neighbor_row_delta)(col_index + neighbor_col_delta)
-      cell.set_neighbor(neighbor_cell, neighbor_row_delta, neighbor_col_delta)
+      cell.set_neighbor(
+        neighbor = grid(neighbor_row)(neighbor_col),
+        delta_row = neighbor_row_delta,
+        delta_col = neighbor_col_delta
+      )
     }
   }
 
-  when(io.read_enable) {
-    io.alive_value := MuxLookup(
-      io.row_address,
-      Bool(false),
-      Array.tabulate(rows) { row =>
-        UInt(row) -> MuxLookup(
-          io.col_address,
-          Bool(false),
-          Array.tabulate(cols) { col =>
-            UInt(col) -> grid(row)(col).io.is_alive
-          }
-        )
-      }
-    )
-  } otherwise {
-    io.alive_value := Bool(false)
+  Array.tabulate(rows) { row =>
+    val row_enabled = Mux(UInt(row) === io.row_address, Bool(true), Bool(false))
+    Array.tabulate(cols) { col =>
+      grid(row)(col).io.set_alive := Mux(
+        (UInt(col) === io.col_address) && row_enabled && io.write_enable, Bool(true), Bool(false))
+    }
+  }
+  // set up a mux to access the alive state of any cell
+  // mux all the columns in a row indexed by column
+  // then mux those muxes together indexed by row
+  io.alive_value := MuxLookup(
+    io.row_address,
+    Bool(false),
+    Array.tabulate(rows) { row =>
+      UInt(row) -> MuxLookup(
+        io.col_address,
+        Bool(false),
+        Array.tabulate(cols) { col =>
+          UInt(col) -> grid(row)(col).io.is_alive
+        }
+      )
+    }
+  )
+
+  def valid_neighbor(neighbor_row : Int, neighbor_col : Int) = {
+    0 <= neighbor_row && neighbor_row < rows && 0 <= neighbor_col && neighbor_col < cols
   }
 }
 
@@ -75,8 +87,6 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
   def read(row: Int, col: Int) : Unit = {
     poke(c.io.row_address, row)
     poke(c.io.col_address, col)
-    poke(c.io.read_enable, 1)
-    step(10)
   }
 
   def test_grid_reading(): Unit = {
@@ -88,14 +98,21 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
       j <- 0 until c.cols
     } {
       poke(c.grid(i)(j).is_alive, if ((i + j) % 5 == 0) 0 else 1)
+      expect(c.grid(i)(j).is_alive, if ((i + j) % 5 == 0) 0 else 1)
     }
+
+    val i = 0
+    val j = 0
+    expect(c.grid(i)(j).is_alive, if ((i + j) % 5 == 0) 0 else 1)
     step(1)
+    expect(c.grid(i)(j).is_alive, if ((i + j) % 5 == 0) 0 else 1)
 
     expect(c.running, 0)
     for {
       i <- 0 until c.rows
       j <- 0 until c.cols
     } {
+      expect(c.grid(i)(j).is_alive, if ((i + j) % 5 == 0) 0 else 1)
       expect(c.grid(i)(j).io.is_alive, if ((i + j) % 5 == 0) 0 else 1)
     }
 
@@ -169,13 +186,15 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
   }
 
   def show(): Unit = {
-//    System.out.println("+" + ("-" * c.grid.head.length) + "+")
-//    for {
-//      row <- c.grid
-//    } {
-//      System.out.println("|" + row.map { cell => if(peek(cell.is_alive)==BigInt(1)) "*" else " "}.mkString("") + "|")
-//    }
-//    System.out.println("+" + ("-" * c.grid.head.length) + "+")
+    isTrace = false
+    System.out.println("+" + ("-" * c.grid.head.length) + "+")
+    for {
+      row <- c.grid
+    } {
+      System.out.println("|" + row.map { cell => if(peek(cell.is_alive)==BigInt(1)) "*" else " "}.mkString("") + "|")
+    }
+    System.out.println("+" + ("-" * c.grid.head.length) + "+")
+    isTrace = true
   }
 
   test_grid_reading()
@@ -188,7 +207,7 @@ object AddressableLifeGrid {
     chiselMainTest(
       Array[String]("--backend", "c", "--compile", "--test", "--genHarness"),
 //            Array[String]("--backend", "dot"),
-      () => Module(new AddressableLifeGrid(5,5))
+      () => Module(new AddressableLifeGrid(8, 8))
     ) {
       c => new AddressableLifeGridTests(c)
     }
