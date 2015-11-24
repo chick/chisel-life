@@ -224,7 +224,23 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
       poke(c.grid(row)(2).is_alive, 1)
     }
 
-    for (g <- 0 until 10) {
+    for (g <- 0 until 100) {
+      step(1)
+      show()
+    }
+  }
+
+  def test_random() {
+    clear()
+
+    for {
+      row <- c.grid.indices
+      col <- c.grid(row).indices
+    } {
+      poke(c.grid(row)(col).is_alive, rnd.nextInt(2))
+    }
+
+    for (g <- 0 until 100) {
       step(1)
       show()
     }
@@ -246,6 +262,7 @@ class AddressableLifeGridTests(c: AddressableLifeGrid) extends Tester(c) { self 
   test_grid_reading()
   test_blinker()
   test_line()
+  test_random()
 }
 
 object AddressableLifeGrid {
@@ -253,7 +270,7 @@ object AddressableLifeGrid {
     chiselMainTest(
       Array[String]("--backend", "c", "--compile", "--test", "--genHarness"),
 //            Array[String]("--backend", "dot"),
-      () => Module(new AddressableLifeGrid(8, 8))
+      () => Module(new AddressableLifeGrid(20, 20))
     ) {
       c => new AddressableLifeGridTests(c)
     }
