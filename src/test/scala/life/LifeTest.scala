@@ -2,14 +2,14 @@
 
 package life
 
-import chisel3.iotesters.Driver
+import chiseltest.ChiselScalatestTester
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 
-class LifeTest extends AnyFreeSpec with Matchers {
+class LifeTest extends AnyFreeSpec with ChiselScalatestTester with Matchers {
   "should simulate life game" in {
-    Driver.execute(Array("-tiv"), () => new AddressableLifeGrid(20, 20)) { c =>
-      new AddressableLifeGridTests(c)
+    test(new AddressableLifeGrid(20, 20)) { c =>
+      new ExampleTests(c)
     }
   }
 }

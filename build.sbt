@@ -2,7 +2,7 @@
 
 val defaultVersions = Map(
   "chisel3" -> "3.5-SNAPSHOT",
-  "chisel-iotesters" -> "2.5-SNAPSHOT"
+  "chiseltest" -> "0.5-SNAPSHOT"
 )
 
 lazy val commonSettings = Seq(
@@ -11,7 +11,7 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.13",
   crossScalaVersions := Seq("2.12.13", "2.13.6"),
   scalacOptions := Seq("-deprecation", "-feature", "-language:reflectiveCalls"),
-  libraryDependencies ++= Seq("chisel3","chisel-iotesters").map {
+  libraryDependencies ++= Seq("chisel3","chiseltest").map {
     dep: String => "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", defaultVersions(dep))
   },
   libraryDependencies ++= Seq(

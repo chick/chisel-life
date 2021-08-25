@@ -3,7 +3,6 @@
 package life
 
 import chisel3._
-import chisel3.iotesters.PeekPokeTester
 import chisel3.util.MuxCase
 
 /** Created by chick on 11/9/15.
@@ -70,124 +69,7 @@ class LifeCell extends Module {
   io.isAlive := isAlive
 }
 
-class LifeCellTests(c: LifeCell) extends PeekPokeTester(c) { self =>
-  def setNeighbors(
-    ntl: Int,
-    ntc: Int,
-    ntr: Int,
-    nml: Int,
-    nmc: Int,
-    nmr: Int,
-    nbl: Int,
-    nbc: Int,
-    nbr: Int
-  ): Unit = {
-    poke(c.io.topLeft, ntl)
-    poke(c.io.topCenter, ntc)
-    poke(c.io.topRight, ntr)
-    poke(c.io.midLeft, nml)
-    // center "neighbor" is the value of the cell itself
-    // poke(c.isAlive, nmc)
-    poke(c.io.midRight, nmr)
-    poke(c.io.botLeft, nbl)
-    poke(c.io.botCenter, nbc)
-    poke(c.io.botRight, nbr)
-  }
-
-  poke(c.io.running, 1)
-
-  // dead cell with no neighbors stays dead
-  setNeighbors(
-    0, 0, 0, 0, 0, 0, 0, 0, 0
-  )
-  step(1)
-  expect(c.io.isAlive, 0)
-
-  // dead cell with > 3 neighbors stays dead
-  setNeighbors(
-    1, 1, 1, 1, 0, 1, 1, 1, 1
-  )
-  step(1)
-  expect(c.io.isAlive, 0)
-
-  // live cell with > 3 neighbors stays dead
-  setNeighbors(
-    1, 1, 1, 1, 1, 1, 1, 1, 1
-  )
-  step(1)
-  expect(c.io.isAlive, 0)
-
-  // dead cell with exactly three neighbors becomes alive
-  setNeighbors(
-    1, 0, 0, 1, 0, 0, 1, 0, 0
-  )
-  step(1)
-  expect(c.io.isAlive, 1)
-  setNeighbors(
-    1, 0, 0, 0, 0, 1, 0, 1, 0
-  )
-  step(1)
-  expect(c.io.isAlive, 1)
-
-  // live cell with one neighbor dies
-  setNeighbors(
-    0, 0, 0, 0, 1, 1, 0, 0, 0
-  )
-  step(1)
-  expect(c.io.isAlive, 0)
-
-  // live cell with exactly three neighbors stays alive
-  setNeighbors(
-    1, 0, 0, 1, 1, 0, 1, 0, 0
-  )
-  step(1)
-  expect(c.io.isAlive, 1)
-
-  // live cell with exactly four neighbors dies
-  setNeighbors(
-    1, 0, 0, 1, 1, 1, 1, 0, 0
-  )
-  step(1)
-  expect(c.io.isAlive, 0)
-
-  // test setAlive
-  setNeighbors(
-    0, 0, 0, 0, 0, 0, 0, 0, 0
-  )
-  poke(c.io.setAlive, 1)
-  poke(c.io.setDead, 0)
-  poke(c.io.running, 1)
-  step(1)
-  expect(c.io.isAlive, 1)
-
-  poke(c.io.setAlive, 1)
-  poke(c.io.setDead, 0)
-  poke(c.io.running, 0)
-  step(1)
-  expect(c.io.isAlive, 1)
-
-  poke(c.io.setDead, 1)
-  poke(c.io.setAlive, 0)
-  poke(c.io.running, 1)
-  step(1)
-  expect(c.io.isAlive, 0)
-
-  poke(c.io.setDead, 1)
-  poke(c.io.setAlive, 0)
-  poke(c.io.running, 0)
-  step(1)
-  expect(c.io.isAlive, 0)
-
-}
-
 object LifeCell {
-  def main(args: Array[String]): Unit = {
-    iotesters.Driver.execute(
-      Array[String]("--backend-name", "firrtl"),
-      //      Array[String]("--backend", "dot"),
-      () => new LifeCell()
-    ) { c =>
-      new LifeCellTests(c)
-    }
-  }
+  val Alive = true.B
+  val Dead = false.B
 }

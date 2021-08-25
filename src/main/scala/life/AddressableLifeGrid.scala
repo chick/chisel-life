@@ -1,9 +1,9 @@
 package life
 
 import chisel3._
-import chisel3.iotesters.{chiselMainTest, PeekPokeTester}
 import chisel3.stage.ChiselStage
 import chisel3.util.MuxLookup
+import chiseltest.{experimental, RawTester}
 
 /** Created by chick on 11/10/15.
   */
@@ -99,196 +99,11 @@ class AddressableLifeGrid(val rows: Int = 10, val cols: Int = 20) extends Module
   }
 }
 
-class AddressableLifeGridTests(c: AddressableLifeGrid) extends PeekPokeTester(c) {
-
-  def clear(): Unit = {
-    for {
-      rowIndex <- c.grid.indices
-      colIndex <- c.grid(0).indices
-    } {
-      poke(c.grid(rowIndex)(colIndex).isAlive, 0)
-    }
-  }
-
-  def run(): Unit = {
-    poke(c.running, 1)
-  }
-
-  def pause(): Unit = {
-    poke(c.running, 0)
-  }
-
-  def read(row: Int, col: Int): Unit = {
-    poke(c.io.rowAddress, row)
-    poke(c.io.colAddress, col)
-  }
-
-  def testGridReading(): Unit = {
-    clear()
-    pause()
-
-    for {
-      i <- 0 until c.rows
-      j <- 0 until c.cols
-    } {
-      poke(c.grid(i)(j).isAlive, if ((i + j) % 5 == 0) 0 else 1)
-      expect(c.grid(i)(j).isAlive, if ((i + j) % 5 == 0) 0 else 1)
-    }
-
-    val i = 0
-    val j = 0
-    expect(c.grid(i)(j).isAlive, if ((i + j) % 5 == 0) 0 else 1)
-    step(1)
-    expect(c.grid(i)(j).isAlive, if ((i + j) % 5 == 0) 0 else 1)
-
-    expect(c.running, 0)
-    for {
-      i <- 0 until c.rows
-      j <- 0 until c.cols
-    } {
-      expect(c.grid(i)(j).isAlive, if ((i + j) % 5 == 0) 0 else 1)
-      expect(c.grid(i)(j).io.isAlive, if ((i + j) % 5 == 0) 0 else 1)
-    }
-
-    for {
-      i <- 0 until c.rows
-      j <- 0 until c.cols
-    } {
-      read(i, j)
-      expect(c.io.aliveValue, if ((i + j) % 5 == 0) 0 else 1)
-    }
-  }
-
-  def testGridWriting(): Unit = {
-    clear()
-    pause()
-
-    def writeCell(row: Int, col: Int, setAlive: Boolean): Unit = {
-      poke(c.io.rowAddress, row)
-      poke(c.io.colAddress, col)
-      poke(c.io.setAlive, if (setAlive) 1 else 0)
-      poke(c.io.setDead, if (!setAlive) 1 else 0)
-      poke(c.io.writeEnable, 1)
-      step(1)
-      poke(c.io.writeEnable, 0)
-    }
-
-    def testReadWrite(): Unit = {
-      for {
-        i <- 0 until c.rows
-        j <- 0 until c.cols
-      } {
-        writeCell(i, j, setAlive = true)
-        expect(c.grid(i)(j).io.isAlive, 1)
-        writeCell(i, j, setAlive = false)
-        expect(c.grid(i)(j).io.isAlive, 0)
-//        show()
-      }
-    }
-
-    testReadWrite()
-  }
-
-  def testBlinker() {
-    clear()
-    run()
-
-    poke(c.grid(2)(2).isAlive, 1)
-
-    step(1)
-
-    expect(c.grid(2)(2).isAlive, BigInt(0))
-
-    poke(c.grid(2)(1).isAlive, 1)
-    poke(c.grid(2)(2).isAlive, 1)
-    poke(c.grid(2)(3).isAlive, 1)
-
-    show()
-
-    expect(c.grid(2)(2).isAlive, 1)
-    step(1)
-    show()
-    expect(c.grid(2)(2).isAlive, 1)
-
-    expect(c.grid(2)(1).isAlive, BigInt(0))
-    expect(c.grid(2)(2).isAlive, BigInt(1))
-    expect(c.grid(2)(3).isAlive, BigInt(0))
-
-    // stop machine running, despite step, things should stay the same
-    poke(c.running, 0)
-    step(1)
-    expect(c.grid(2)(1).isAlive, BigInt(0))
-    expect(c.grid(2)(2).isAlive, BigInt(1))
-    expect(c.grid(2)(3).isAlive, BigInt(0))
-    show()
-
-    // start machine back up
-    poke(c.running, 1)
-    step(1)
-    expect(c.grid(2)(1).isAlive, BigInt(1))
-    expect(c.grid(2)(2).isAlive, BigInt(1))
-    expect(c.grid(2)(3).isAlive, BigInt(1))
-    show()
-
-//    for (g <- 0 until 10) {
-//      step(1)
-//      show()
+//object AddressableLifeGrid {
+//  def main(args: Array[String]): Unit = {
+//    println(ChiselStage.emitFirrtl(new AddressableLifeGrid()))
+//    RawTester.test(new AddressableLifeGrid(20, 20)) { c =>
+//      new Ex(c)
 //    }
-  }
-
-  def testLine() {
-    clear()
-
-    for (row <- c.grid.indices) {
-      poke(c.grid(row)(2).isAlive, 1)
-    }
-
-    for (g <- 0 until 100) {
-      step(1)
-      show()
-    }
-  }
-
-  def testRandom() {
-    clear()
-
-    for {
-      row <- c.grid.indices
-      col <- c.grid(row).indices
-    } {
-      poke(c.grid(row)(col).isAlive, rnd.nextInt(2))
-    }
-
-    for (g <- 0 until 100) {
-      step(1)
-      show()
-    }
-  }
-
-  def show(): Unit = {
-    System.out.println("+" + ("-" * c.grid.head.length) + "+")
-    for {
-      row <- c.grid
-    } {
-      System.out.println(
-        "|" + row.map { cell => if (peek(cell.isAlive) == BigInt(1)) "*" else " " }.mkString("") + "|"
-      )
-    }
-    System.out.println("+" + ("-" * c.grid.head.length) + "+")
-  }
-
-  testGridWriting()
-  testGridReading()
-  testBlinker()
-  testLine()
-  testRandom()
-}
-
-object AddressableLifeGrid {
-  def main(args: Array[String]): Unit = {
-    println(ChiselStage.emitFirrtl(new AddressableLifeGrid()))
-    chiselMainTest(Array[String](), () => Module(new AddressableLifeGrid(20, 20))) { c =>
-      new AddressableLifeGridTests(c)
-    }
-  }
-}
+//  }
+//}
