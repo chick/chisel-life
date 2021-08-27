@@ -1,0 +1,18 @@
+on: [push]
+
+jobs:
+  hello_world_job:
+    runs-on: ubuntu-latest
+    name: A job to say hello
+    steps:
+      - uses: actions/checkout@v2
+      - name: show path
+        run: echo github-actions-path ${{ github.action_path }}
+      - name: show cwd
+        run: pwd && ls -la && find ./.github/workflows
+      - id: foo
+        uses: ./.github/actions/hello-world-composite-action
+        with:
+          who-to-greet: 'Mona the Octocat'
+#      - run: echo random-number ${{ steps.foo.outputs.random-number }}
+#        shell: bash
