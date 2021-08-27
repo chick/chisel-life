@@ -11,7 +11,7 @@ jobs:
       - name: show cwd
         run: pwd && ls -la && find ./actions && find ./.github/workflows
       - id: foo
-        uses: ./actions/hello-world-composite-action@v1
+        uses: ./.github/actions/hello-world-composite-action
         with:
           who-to-greet: 'Mona the Octocat'
 #      - run: echo random-number ${{ steps.foo.outputs.random-number }}
