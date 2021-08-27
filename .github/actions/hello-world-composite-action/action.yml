@@ -16,9 +16,11 @@ runs:
       shell: bash
     - run: echo github-actions-path ${{ github.action_path }}
       shell: bash
-    - uses: ./.github/actions/goodbye
-      with:
-        who-to-greet: 'Mona the Octocat'
+    - name: Setup Scala
+      uses: olafurpg/setup-scala@v10
+#    - uses: ./.github/actions/goodbye
+#      with:
+#        who-to-greet: 'Mona the Octocat'
 #    - id: random-number-generator
 #      run: echo "::set-output name=random-id::$(echo $RANDOM)"
 #      shell: bash
