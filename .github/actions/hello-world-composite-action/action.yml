@@ -15,6 +15,7 @@ runs:
     - run: echo Hello ${{ inputs.who-to-greet }}.
       shell: bash
     - run: echo github-actions-path ${{ github.action_path }}
+      shell: bash
 #    - id: random-number-generator
 #      run: echo "::set-output name=random-id::$(echo $RANDOM)"
 #      shell: bash
