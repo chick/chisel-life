@@ -8,6 +8,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: show path
         run: echo github-actions-path ${{ github.action_path }}
+      - name: show cwd
+        run: pwd && ls -l
       - id: foo
         uses: ./actions/hello-world-composite-action@v1
         with:
