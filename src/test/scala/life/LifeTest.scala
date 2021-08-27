@@ -7,7 +7,7 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 
 class LifeTest extends AnyFreeSpec with ChiselScalatestTester with Matchers {
-  "should simulate life game" in {
+  "should simulate life game" ignore {
     test(new AddressableLifeGrid(20, 20)) { c =>
       new ExampleTests(c)
     }
